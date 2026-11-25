@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#102a24">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Year Planner">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>AI FDE Life Planner</title>
+<style>
+:root{--bg:#f4f6f3;--card:#fff;--ink:#17251f;--muted:#66736c;--line:#e3e9e4;--green:#174d3b;--mint:#e4f2e9;--gold:#f5ecd7;--shadow:0 8px 28px rgba(17,48,35,.07)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding-bottom:90px}
+header{background:linear-gradient(135deg,#102a24,#1d5b43);color:white;padding:22px 18px 24px;border-radius:0 0 24px 24px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px}.brand{font-size:12px;letter-spacing:1.4px;text-transform:uppercase;opacity:.78}.datebig{font-size:25px;font-weight:750;margin-top:8px}.sub{font-size:13px;opacity:.78;margin-top:4px}
+.pill{border:1px solid #ffffff55;border-radius:99px;padding:7px 10px;font-size:11px;white-space:nowrap}
+main{max-width:760px;margin:auto;padding:14px}
+.tabs{display:flex;gap:7px;overflow:auto;padding:3px 0 12px;position:sticky;top:0;background:var(--bg);z-index:3}
+.tab{border:0;background:#e8eee9;color:#405047;padding:10px 13px;border-radius:99px;font-weight:650;white-space:nowrap}.tab.active{background:var(--green);color:#fff}
+.panel{display:none}.panel.active{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:17px;padding:15px;margin:0 0 12px;box-shadow:var(--shadow)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px}.muted{color:var(--muted)}.small{font-size:12px}.h{font-size:17px;font-weight:750;margin:0 0 10px}.big{font-size:27px;font-weight:800}.progress{height:8px;background:#e8eee9;border-radius:20px;overflow:hidden;margin:10px 0}.progress>div{height:100%;background:#258354;width:0%;transition:.2s}
+.task{display:flex;gap:11px;padding:12px 0;border-bottom:1px solid var(--line);align-items:flex-start}.task:last-child{border:0;padding-bottom:0}.task input{width:20px;height:20px;accent-color:#20754d;margin:1px 0 0;flex-shrink:0}.task.done .taskname{text-decoration:line-through;color:#839087}.time{font-size:11px;color:var(--green);font-weight:750;min-width:98px;padding-top:2px}.taskname{font-weight:600}.detail{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.4}
+.btn{border:0;background:var(--green);color:#fff;padding:11px 14px;border-radius:11px;font-weight:700}.btn.secondary{background:#edf2ee;color:#294638}.btn.danger{background:#f9e9e6;color:#9b3a2e}
+input[type=date],select,textarea,input[type=text]{font:inherit;border:1px solid var(--line);border-radius:10px;padding:10px;background:white;color:var(--ink);max-width:100%}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.metric{background:#f5f8f5;border-radius:13px;padding:12px}.metric b{display:block;font-size:21px}
+.daynav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}.daynav button{border:0;background:#e8eee9;border-radius:10px;padding:10px 13px}
+.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.calhead{text-align:center;color:var(--muted);font-size:10px;padding:5px 0}.calday{min-height:43px;border:1px solid var(--line);background:white;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px}.calday.selected{background:var(--green);color:white;border-color:var(--green)}.calday.out{opacity:.25}.calday.has{box-shadow:inset 0 -3px #55a878}
+ul.clean{padding-left:18px;margin:8px 0}li{margin:6px 0;line-height:1.4}
+.notice{background:#f7f1df;border:1px solid #eee2bd;padding:12px;border-radius:12px;font-size:12px;line-height:1.5}
+footer{position:fixed;bottom:0;left:0;right:0;background:#ffffffed;backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom));display:flex;justify-content:center;z-index:5}
+footer button{max-width:720px;width:100%}
+@media(min-width:650px){main{padding:20px}.grid{grid-template-columns:repeat(4,1fr)}}
+</style>
+</head>
+<body>
+<header>
+ <div class="top"><div><div class="brand">Your personal operating system</div><div class="datebig" id="headerDate">Your year starts here</div><div class="sub">AI FDE • Fitness • Food • Skincare • Consistency</div></div><div class="pill">12-MONTH PLAN</div></div>
+</header>
+<main>
+ <nav class="tabs">
+  <button class="tab active" data-tab="today">Today</button><button class="tab" data-tab="calendar">Calendar</button><button class="tab" data-tab="roadmap">AI roadmap</button><button class="tab" data-tab="habits">Habits</button><button class="tab" data-tab="settings">Settings</button>
+ </nav>
+ <section class="panel active" id="today">
+  <div class="daynav"><button id="prevDay">‹</button><input type="date" id="datePicker"><button id="nextDay">›</button></div>
+  <div class="card">
+   <div class="row"><div><div class="muted small">DAILY COMPLETION</div><div class="big" id="percent">0%</div></div><div style="text-align:right"><div class="muted small">TASKS DONE</div><b id="doneCount">0 / 0</b></div></div>
+   <div class="progress"><div id="bar"></div></div><div class="small muted" id="encouragement">One consistent day at a time.</div>
+  </div>
+  <div class="card"><div class="h">Today's schedule</div><div id="dailyTasks"></div></div>
+  <div class="card"><div class="h">Today's AI FDE mission</div><div id="mission"></div></div>
+  <div class="card"><div class="h">Food plan</div><div id="food"></div></div>
+  <div class="card"><div class="h">Workout / recovery</div><div id="workout"></div></div>
+ </section>
+ <section class="panel" id="calendar">
+  <div class="card">
+   <div class="row"><button class="btn secondary" id="prevMonth">‹</button><b id="monthLabel"></b><button class="btn secondary" id="nextMonth">›</button></div>
+   <div class="calendar" id="calendarGrid" style="margin-top:12px"></div>
+   <p class="small muted">Tap any date within your plan to see that day's tasks. Dates with a green underline have saved progress.</p>
+  </div>
+  <div class="card"><div class="h">Your year at a glance</div><div class="grid" id="yearStats"></div></div>
+ </section>
+ <section class="panel" id="roadmap">
+  <div class="card"><div class="h">12-month AI FDE learning path</div><p class="muted small">Target: about 10–12 focused hours each week. Build projects as you learn; don't just watch courses.</p><div id="roadmapList"></div></div>
+  <div class="card"><div class="h">Weekly study rhythm</div><ul class="clean">
+   <li><b>Monday:</b> learn a new concept and take notes.</li><li><b>Tuesday:</b> code exercises from memory.</li><li><b>Wednesday:</b> practice Python, SQL or debugging.</li><li><b>Thursday:</b> implement the concept in your project.</li><li><b>Friday:</b> revise, test and write down questions.</li><li><b>Saturday:</b> 2–3 hour deep-work build session.</li><li><b>Sunday:</b> 2-hour project block, review and plan next week.</li>
+  </ul></div>
+ </section>
+ <section class="panel" id="habits">
+  <div class="card"><div class="h">Daily non-negotiables</div><div id="habitList"></div></div>
+  <div class="card"><div class="h">Weekly review</div><label class="small muted">What did you learn, build, and improve?</label><textarea id="weeklyNote" rows="5" style="width:100%;margin-top:8px" placeholder="This week I learned... I built... Next week I will..."></textarea><button class="btn" id="saveNote" style="margin-top:8px">Save weekly review</button></div>
+ </section>
+ <section class="panel" id="settings">
+  <div class="card"><div class="h">Personalize your schedule</div>
+   <label class="small muted">One-way commute</label><select id="commute" style="width:100%;margin:6px 0 12px"><option value="15">15 minutes</option><option value="30">30 minutes</option><option value="40" selected>40 minutes (default)</option><option value="60">60 minutes</option><option value="variable">Varies</option></select>
+   <label class="small muted">Workout setup</label><select id="gym" style="width:100%;margin:6px 0 12px"><option value="gym">Gym</option><option value="home">Home workouts</option><option value="both">Both</option></select>
+   <label class="small muted">Diet preference</label><select id="diet" style="width:100%;margin:6px 0 12px"><option value="both">Vegetarian and non-vegetarian</option><option value="vegetarian">Vegetarian</option><option value="non-vegetarian">Non-vegetarian</option></select>
+   <label class="small muted">Wake-up time</label><select id="wake" style="width:100%;margin:6px 0 12px"><option>5:45 AM</option><option selected>6:15 AM</option><option>6:30 AM</option><option>7:00 AM</option></select>
+   <button class="btn" id="saveSettings">Save settings</button>
+  </div>
+  <div class="card"><div class="h">Your plan dates</div><p class="small">November 25, 2026 – November 24, 2027. The app generates a unique daily learning task, weekly workout rotation, meal-prep reminders and recurring routines for each date.</p><div class="notice">This first version uses an estimated 40-minute commute and a general fitness/meal plan. Change your preferences above; tell me your actual commute, gym access and dietary preference to tune it further.</div></div>
+  <div class="card"><div class="h">Backup your progress</div><p class="small muted">Export a backup before changing devices or clearing browser data.</p><button class="btn secondary" id="export">Export backup</button> <label class="btn secondary" for="importFile" style="display:inline-block">Import backup</label><input id="importFile" type="file" accept="application/json" hidden><button class="btn danger" id="reset" style="margin-top:12px">Reset all progress</button></div>
+ </section>
+</main>
+<footer><button class="btn" id="todayBtn">Back to today's plan</button></footer>
+<script>
+const START='2026-11-25', END='2027-11-24';
+const phases=[
+['Python foundations','Python syntax, variables, conditionals, loops, functions, lists, dictionaries, files, exceptions, virtual environments and basic OOP.','Create a command-line personal expense tracker with tests.'],
+['Developer foundations','Git, GitHub, branches, pull requests, terminal, Linux basics, debugging, testing and clean code.','Publish a well-documented Python project with tests and CI.'],
+['Backend and databases','HTTP, REST, JSON, FastAPI, Pydantic, SQL, PostgreSQL, CRUD, authentication and API testing.','Build and deploy a documented CRUD API backed by PostgreSQL.'],
+['AI and ML foundations','NumPy, pandas, data preparation, train/test splits, metrics, classical ML, neural-network concepts and model APIs.','Create an ML prediction API and explain its evaluation.'],
+['Generative AI and RAG','LLM APIs, prompting, token limits, embeddings, chunking, vector search, retrieval, citations and RAG evaluation.','Build a document Q&A app with source citations and an evaluation set.'],
+['Agentic AI','Tool calling, structured outputs, agent loops, state, LangGraph, memory, human approval and failure handling.','Build a multi-step agent with tools, checkpoints and human approval.'],
+['MCP and integrations','MCP concepts, servers, clients, tool schemas, external APIs, agent harnesses and integration security.','Create an MCP server and connect it to an agent workflow.'],
+['Full-stack AI applications','Frontend basics, React concepts, API integration, streaming, file upload, user experience and application architecture.','Build a usable full-stack AI application with a clean interface.'],
+['Cloud and deployment','Docker, containers, environment variables, AWS fundamentals, storage, compute, deployment, CI/CD and monitoring.','Deploy an AI application with Docker and a repeatable deployment pipeline.'],
+['Production engineering','Evaluation datasets, tracing, observability, guardrails, prompt injection defense, access control, reliability, latency and cost.','Add evals, tracing, security checks and cost monitoring to your app.'],
+['Portfolio projects','End-to-end architecture, customer problem framing, requirements, implementation, deployment, documentation and demos.','Complete two production-style projects and publish architecture diagrams.'],
+['Interview and job preparation','Coding practice, system design, debugging interviews, customer communication, demos, resume and targeted applications.','Prepare two project demos, interview stories and a focused application pipeline.']
+];
+const weekTopics=[
+'Set up Python, VS Code and a virtual environment; write and run your first scripts.',
+'Practice variables, strings, numbers, booleans and type conversion with 10 small exercises.',
+'Practice if/else, loops and input validation; solve 8 beginner problems.',
+'Practice functions, parameters, return values and reusable modules.',
+'Learn lists, tuples, sets and dictionaries; build a small contact book.',
+'Practice file handling, JSON, exceptions and debugging.',
+'Review the week; refactor one script and write a clear README.',
+'Learn classes, objects, constructors and methods with small examples.',
+'Practice OOP composition and inheritance; model a simple order system.',
+'Learn pip, virtual environments, package structure and requirements files.',
+'Write unit tests with pytest and learn assertions and test cases.',
+'Build a command-line expense tracker with add/list/delete features.',
+'Add JSON persistence, validation and error handling to the tracker.',
+'Review, test and publish your first polished Python project.'
+];
+const weekdays=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const workouts={Monday:'Upper body strength (push + pull)',Tuesday:'Lower body strength',Wednesday:'Cardio + core',Thursday:'Upper body strength (variation)',Friday:'Lower body strength (variation)',Saturday:'Full-body workout',Sunday:'Recovery walk, mobility and stretching'};
+const habits=['Morning skincare: gentle cleanse, moisturizer, SPF 30–50','AI learning session or planned weekend deep work','Workout or recovery movement','Eat planned meals and drink water regularly','Night skincare: cleanse and moisturize','Prepare clothes, meals and top 3 tasks for tomorrow','Aim for a consistent bedtime around 10:30 PM'];
+const stateKey='fdePlannerV1';
+let saved=JSON.parse(localStorage.getItem(stateKey)||'{}');
+let selected=START, viewMonth=new Date(2026,10,1);
+let prefs=Object.assign({commute:'40',gym:'gym',diet:'both',wake:'6:15 AM'},saved.prefs||{});
+function save(){saved.prefs=prefs;localStorage.setItem(stateKey,JSON.stringify(saved))}
+function dateObj(s){let [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)}
+function iso(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function valid(s){return s>=START&&s<=END}
+function dayIndex(s){return Math.floor((dateObj(s)-dateObj(START))/86400000)}
+function phaseIndex(s){return Math.min(11,Math.floor(dayIndex(s)/30.5))}
+function weekDay(s){return weekdays[dateObj(s).getDay()===0?6:dateObj(s).getDay()-1]}
+function tasksFor(s){
+ const dow=dateObj(s).getDay(), wk=weekDay(s), weekend=dow===0||dow===6;
+ const commute=prefs.commute==='variable'?'buffer for your commute':prefs.commute+' min commute';
+ let a=[];
+ if(!weekend){
+  a=[['6:15 AM','Wake up + water','Avoid scrolling; get daylight.'],['6:25 AM','Morning skincare','Cleanse, moisturize and apply SPF 30–50.'],['6:35–7:35 AM','AI FDE focused study','Complete today’s learning mission; code, don’t only watch.'],['7:35–8:10 AM','Workout','Keep it to 30–35 minutes; use the weekly split.'],['8:10–8:50 AM','Shower + breakfast','Eat a protein-containing breakfast.'],['8:50–9:15 AM','Pack lunch + prepare','Pack food, water and work essentials.'],['9:15–9:50 AM','Commute / buffer',commute+'.'],['9:50 AM–8:00 PM','Work','Use breaks for short walks and hydration.'],['8:00–8:40 PM','Commute home','Estimated 40 minutes; adjust if needed.'],['8:40–9:10 PM','Dinner','Eat your pre-prepared meal; keep it simple.'],['9:10–9:25 PM','Night skincare','Cleanse and moisturize.'],['9:25–9:45 PM','Prepare tomorrow','Clothes, lunch, water and top 3 priorities.'],['9:45–10:30 PM','Wind down','Reduce screens; aim to sleep by 10:30 PM.']];
+ } else if(dow===6){
+  a=[['7:00 AM','Wake up + skincare','Keep wake time reasonably consistent.'],['7:30–8:15 AM','Full-body workout','Strength session; stop with good form.'],['8:15–9:00 AM','Shower + breakfast','Refuel and hydrate.'],['9:00–11:00 AM','AI FDE deep work','Learn the weekly topic and implement examples.'],['11:00 AM–12:00 PM','Break / errands','Walk, laundry or personal admin.'],['12:00–1:30 PM','Portfolio project','Build a working feature; commit code.'],['Afternoon','Groceries + meal prep','Prepare meals for the next few days.'],['6:00–7:00 PM','Review and practice','Solve problems and write a weekly learning log.'],['Evening','Personal time','Rest and connect with friends/family.'],['10:30 PM','Sleep','Protect recovery.']];
+ } else {
+  a=[['7:00 AM','Wake up + skincare','Gentle start; hydrate.'],['7:30–8:00 AM','Recovery walk + mobility','Easy movement, no hard training.'],['9:00–11:00 AM','AI FDE learning','Finish the week’s topic or revisit difficult concepts.'],['11:00 AM–12:00 PM','Project block','Test, document or improve your project.'],['12:00–2:00 PM','Meal prep','Prepare food and portion meals safely.'],['Afternoon','Rest + household tasks','Laundry, room reset and personal time.'],['6:00–7:00 PM','Weekly review + planning','Review learning, workouts, spending and next week.'],['Evening','Prepare for Monday','Pack bag and choose the first study task.'],['10:30 PM','Sleep','Start the workweek rested.']];
+ }
+ return a;
+}
+function missionFor(s){
+ let p=phaseIndex(s), offset=dayIndex(s)%30, wk=weekDay(s), topic=phases[p];
+ let daily;
+ if(p===0) daily=weekTopics[dayIndex(s)%weekTopics.length];
+ else {
+  const templates=[
+   `Study one core concept in ${topic[0].toLowerCase()}; write a short explanation in your own words.`,
+   `Complete 3–5 hands-on exercises related to ${topic[0].toLowerCase()}.`,
+   `Implement a small example without copying a tutorial line by line.`,
+   `Add today's concept to your current project and commit your changes.`,
+   `Test, debug and document what you built; list unresolved questions.`,
+   `Deep-work build: spend 2–3 hours implementing a meaningful project feature.`,
+   `Review the week, clean up your repo and plan the next learning milestone.`
+  ];
+  daily=templates[dateObj(s).getDay()===0?6:dateObj(s).getDay()-1];
+ }
+ return {phase:topic[0],goal:topic[2],task:daily,month:p+1};
+}
+function mealFor(s){
+ let d=dateObj(s).getDay();
+ let prep=d===0?'Weekly meal prep: plan 3–4 days of meals, refrigerate near-term portions and freeze later portions.':d===3?'Midweek meal prep: replenish meals for the next few days.':d===6?'Grocery shopping and batch cooking.':'Use a prepared meal: protein + vegetables + rice/roti/potato; pack tomorrow’s lunch.';
+ let sample=prefs.diet==='vegetarian'?'dal or chickpeas, paneer/tofu, rice/roti and vegetables':prefs.diet==='non-vegetarian'?'chicken, fish or eggs with rice/roti and vegetables':'rotate dal, paneer/tofu, eggs, chicken or fish with rice/roti and vegetables';
+ return prep+' Suggested meal base: '+sample+'.';
+}
+function workoutFor(s){let w=weekDay(s),d=dateObj(s).getDay();let desc=workouts[w];if(d===0)return desc+'. Keep it gentle.';return desc+'. Warm up 5 minutes, use controlled form, and stop if you feel pain.'}
+function dayTasks(s){let a=tasksFor(s);return a.map((t,i)=>({id:'t'+i,time:t[0],name:t[1],detail:t[2]}))}
+function getChecks(s){return saved.days?.[s]||[]}
+function setCheck(s,id,on){saved.days=saved.days||{};let arr=new Set(saved.days[s]||[]);on?arr.add(id):arr.delete(id);saved.days[s]=[...arr];save();renderToday()}
+function renderToday(){
+ let d=dateObj(selected);document.getElementById('datePicker').value=selected;
+ document.getElementById('headerDate').textContent=d.toLocaleDateString(undefined,{weekday:'long',month:'short',day:'numeric',year:'numeric'});
+ let tasks=dayTasks(selected),checks=getChecks(selected),container=document.getElementById('dailyTasks');container.innerHTML='';
+ tasks.forEach(t=>{let el=document.createElement('label');el.className='task '+(checks.includes(t.id)?'done':'');el.innerHTML=`<input type="checkbox" ${checks.includes(t.id)?'checked':''}><div class="time">${t.time}</div><div><div class="taskname">${t.name}</div><div class="detail">${t.detail}</div></div>`;el.querySelector('input').addEventListener('change',e=>setCheck(selected,t.id,e.target.checked));container.appendChild(el)});
+ let count=checks.length,pct=Math.round(count/tasks.length*100);document.getElementById('percent').textContent=pct+'%';document.getElementById('doneCount').textContent=count+' / '+tasks.length;document.getElementById('bar').style.width=pct+'%';document.getElementById('encouragement').textContent=pct===100?'Excellent. You completed today’s plan.':pct>=50?'Good progress. Finish the next small task.':'Start with the next scheduled action; consistency beats perfection.';
+ let m=missionFor(selected);document.getElementById('mission').innerHTML=`<div class="small muted">MONTH ${m.month} • ${m.phase}</div><p><b>${m.task}</b></p><div class="detail"><b>Milestone:</b> ${m.goal}</div>`;
+ document.getElementById('food').textContent=mealFor(selected);document.getElementById('workout').textContent=workoutFor(selected);
+}
+function renderCalendar(){
+ document.getElementById('monthLabel').textContent=viewMonth.toLocaleDateString(undefined,{month:'long',year:'numeric'});
+ let grid=document.getElementById('calendarGrid');grid.innerHTML='';
+ ['M','T','W','T','F','S','S'].forEach(x=>{let e=document.createElement('div');e.className='calhead';e.textContent=x;grid.appendChild(e)});
+ let first=new Date(viewMonth.getFullYear(),viewMonth.getMonth(),1),offset=(first.getDay()+6)%7,days=new Date(viewMonth.getFullYear(),viewMonth.getMonth()+1,0).getDate();
+ for(let i=0;i<offset;i++){let e=document.createElement('div');e.className='calday out';grid.appendChild(e)}
+ for(let n=1;n<=days;n++){let d=new Date(viewMonth.getFullYear(),viewMonth.getMonth(),n),s=iso(d),e=document.createElement('button');e.className='calday '+(s===selected?'selected ':'')+(saved.days?.[s]?.length?'has':'');e.textContent=n;e.disabled=!valid(s);e.addEventListener('click',()=>{selected=s;renderToday();switchTab('today')});grid.appendChild(e)}
+ let stats=document.getElementById('yearStats');stats.innerHTML='';let total=0,done=0;Object.entries(saved.days||{}).forEach(([s,a])=>{if(valid(s)){total+=dayTasks(s).length;done+=a.length}});[['Days tracked',Object.keys(saved.days||{}).filter(valid).length],['Tasks completed',done],['Plan duration','365 days'],['Current phase','Month '+(phaseIndex(selected)+1)]].forEach(x=>{let e=document.createElement('div');e.className='metric';e.innerHTML=`<b>${x[1]}</b><span class="small muted">${x[0]}</span>`;stats.appendChild(e)});
+}
+function renderRoadmap(){let el=document.getElementById('roadmapList');el.innerHTML='';phases.forEach((p,i)=>{let start=dateObj(START);start.setDate(start.getDate()+Math.round(i*30.5));let end=new Date(start);end.setDate(end.getDate()+30);let e=document.createElement('div');e.className='task';e.innerHTML=`<div class="time">MONTH ${i+1}</div><div><div class="taskname">${p[0]}</div><div class="detail">${p[1]}</div><div class="detail"><b>Deliverable:</b> ${p[2]}</div></div>`;el.appendChild(e)})}
+function renderHabits(){let el=document.getElementById('habitList');el.innerHTML='';let s=selected,arr=getChecks(s);habits.forEach((h,i)=>{let l=document.createElement('label');l.className='task '+(arr.includes('h'+i)?'done':'');l.innerHTML=`<input type="checkbox" ${arr.includes('h'+i)?'checked':''}><div class="taskname">${h}</div>`;l.querySelector('input').addEventListener('change',e=>{setCheck(s,'h'+i,e.target.checked);renderHabits()});el.appendChild(l)})}
+function switchTab(id){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===id));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===id));if(id==='calendar')renderCalendar();if(id==='habits')renderHabits()}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
+document.getElementById('datePicker').min=START;document.getElementById('datePicker').max=END;document.getElementById('datePicker').addEventListener('change',e=>{if(valid(e.target.value)){selected=e.target.value;renderToday()}});
+document.getElementById('prevDay').onclick=()=>{let d=dateObj(selected);d.setDate(d.getDate()-1);if(valid(iso(d))){selected=iso(d);renderToday()}};
+document.getElementById('nextDay').onclick=()=>{let d=dateObj(selected);d.setDate(d.getDate()+1);if(valid(iso(d))){selected=iso(d);renderToday()}};
+document.getElementById('todayBtn').onclick=()=>{let now=iso(new Date());selected=valid(now)?now:START;renderToday();switchTab('today')};
+document.getElementById('prevMonth').onclick=()=>{viewMonth.setMonth(viewMonth.getMonth()-1);renderCalendar()};
+document.getElementById('nextMonth').onclick=()=>{viewMonth.setMonth(viewMonth.getMonth()+1);renderCalendar()};
+document.getElementById('saveNote').onclick=()=>{saved.notes=saved.notes||{};saved.notes[selected]=document.getElementById('weeklyNote').value;save();alert('Review saved on this device.')};
+function fillSettings(){['commute','gym','diet','wake'].forEach(k=>document.getElementById(k).value=prefs[k])}
+document.getElementById('saveSettings').onclick=()=>{['commute','gym','diet','wake'].forEach(k=>prefs[k]=document.getElementById(k).value);save();renderToday();alert('Settings saved.')};
+document.getElementById('export').onclick=()=>{let blob=new Blob([JSON.stringify(saved,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ai-fde-planner-backup.json';a.click();URL.revokeObjectURL(a.href)};
+document.getElementById('importFile').onchange=async e=>{try{let f=e.target.files[0];if(!f)return;saved=JSON.parse(await f.text());save();renderToday();renderCalendar();alert('Backup imported.')}catch(err){alert('Could not read that backup file.')}};
+document.getElementById('reset').onclick=()=>{if(confirm('Delete all saved checkmarks, notes and settings on this device?')){localStorage.removeItem(stateKey);saved={};prefs={commute:'40',gym:'gym',diet:'both',wake:'6:15 AM'};fillSettings();renderToday();renderCalendar();renderHabits()}};
+fillSettings();renderRoadmap();selected=valid(iso(new Date()))?iso(new Date()):START;renderToday();
+if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
+</script>
+</body></html>
